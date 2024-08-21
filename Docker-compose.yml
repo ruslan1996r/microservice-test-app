@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  resources:
+    build:
+      context: ./resources
+    container_name: resources_service
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+
+  auth:
+    build:
+      context: ./auth
+    container_name: auth_service
+    ports:
+      - "8001:8001"
+    networks:
+      - app-network
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: gateway_service
+    environment:
+      - RESOURCES_URL=http://resources:8000
+      - AUTH_URL=http://auth:8001
+    ports:
+      - "8002:8002"
+    networks:
+      - app-network
+    depends_on:
+      - auth
+      - resources
+
+networks:
+  app-network:
+    driver: bridge
